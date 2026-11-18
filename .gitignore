@@ -1,10 +1,8 @@
-# OS
+node_modules/
+build/
+dist/
+coverage/
 .DS_Store
-Thumbs.db
-
-# Editor
-.vscode/
-*.swp
-
-# Misc
 *.log
+.env*
+!.env.example

@@ -1,0 +1,6 @@
+{
+  "name": "Rage Creative",
+  "description": "Creative Studio & Collaborative Ecosystem combining branding, photography, video production, digital experiences, marketing, and AI-powered creative solutions.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
