@@ -143,7 +143,7 @@ export default function AboutSection({ onStartProject }: AboutSectionProps) {
                   setLightboxImage(item);
                 }
               }}
-              className="aspect-square relative rounded-2xl overflow-hidden border border-[#E6E1D8] bg-[#141414] group cursor-pointer cursor-zoom-in focus:outline-none focus:ring-2 focus:ring-[#C8A46B]"
+              className="aspect-[2/3] relative rounded-2xl overflow-hidden border border-[#E6E1D8] bg-[#141414] group cursor-pointer cursor-zoom-in focus:outline-none focus:ring-2 focus:ring-[#C8A46B]"
             >
               <img
                 src={item.image}
