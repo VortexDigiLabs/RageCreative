@@ -100,9 +100,6 @@ export default function ContactSection({
           <div className="lg:col-span-5 space-y-8">
             <div className="bg-[#181818] text-white p-8 sm:p-10 rounded-3xl border border-white/10 shadow-xl space-y-6">
               <div className="border-b border-white/10 pb-6">
-                <span className="text-[10px] uppercase font-mono tracking-[0.2em] text-[#C8A46B] block mb-1">
-                  Studio Leadership
-                </span>
                 <div className="flex items-center justify-between gap-4">
                   <h3 className="font-serif text-3xl font-normal text-white">
                     {RAGE_BRAND.ceo}

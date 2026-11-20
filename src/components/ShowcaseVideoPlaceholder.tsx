@@ -102,7 +102,7 @@ export default function ShowcaseVideoPlaceholder({
             {/* HTML5 Video element */}
             <video
               ref={videoRef}
-              poster={customPosterUrl || "/videos/hero-poster.jpg"}
+              poster={customPosterUrl || "https://res.cloudinary.com/ddfuc0ktg/video/upload/Showcase_video_zrjxdf.jpg"}
               playsInline
               loop
               muted={isMuted}
@@ -111,10 +111,9 @@ export default function ShowcaseVideoPlaceholder({
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.01]"
             >
               <source
-                src={customVideoUrl || "/videos/showcase-video.mp4"}
+                src={customVideoUrl || "https://res.cloudinary.com/ddfuc0ktg/video/upload/Showcase_video_zrjxdf.mp4"}
                 type="video/mp4"
               />
-              <source src="/videos/hero-background.webm" type="video/webm" />
               Your browser does not support high-definition video playback.
             </video>
 
