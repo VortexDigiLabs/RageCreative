@@ -21,11 +21,9 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Invalid email address." });
   }
 
-  const accessKey = process.env.WEB3FORMS_ACCESS_KEY;
-  if (!accessKey) {
-    console.error("WEB3FORMS_ACCESS_KEY is not set");
-    return res.status(500).json({ error: "Server configuration error." });
-  }
+  // Web3Forms access key — this is a PUBLIC key (safe for client/server code).
+  // See: https://web3forms.com (recipient: hello@ragecreative.co.za)
+  const accessKey = process.env.WEB3FORMS_ACCESS_KEY || "49bb7a3a-1646-4545-9eeb-73de5ea706cd";
 
   let subjectLine = "";
   let htmlBody = "";
