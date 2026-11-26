@@ -2,6 +2,10 @@ import React from "react";
 import { RAGE_BRAND } from "@/lib/rageData";
 import { ArrowUp, Mail, Phone, MapPin, Facebook, Instagram } from "lucide-react";
 
+// ─── FEATURE FLAGS (keep in sync with App.tsx) ───────────────────────────────
+const SHOW_PORTFOLIO = false;
+// ─────────────────────────────────────────────────────────────────────────────
+
 interface FooterProps {
   onNavigate: (sectionId: string) => void;
   onOpenBooking: () => void;
@@ -132,6 +136,7 @@ export default function Footer({
                   About
                 </button>
               </li>
+              {SHOW_PORTFOLIO && (
               <li>
                 <button
                   onClick={() => onNavigate("portfolio")}
@@ -140,6 +145,7 @@ export default function Footer({
                   Portfolio
                 </button>
               </li>
+              )}
               <li>
                 <button
                   onClick={() => onNavigate("brand-accelerator")}

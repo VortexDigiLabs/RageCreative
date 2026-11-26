@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { X, CheckCircle2, Sparkles, Send, ArrowUpRight } from "lucide-react";
+import { X, CheckCircle2, Sparkles, ArrowUpRight, Loader2 } from "lucide-react";
 import { COLLABORATIVE_ECOSYSTEM } from "@/lib/rageData";
 import RageLogo from "@/components/RageLogo";
 
@@ -19,12 +19,44 @@ export default function CollaboratorModal({ isOpen, onClose }: CollaboratorModal
     bio: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setIsSubmitting(true);
+    setSubmitError("");
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          formType: "collaborator",
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          discipline: formData.discipline,
+          portfolioUrl: formData.portfolioUrl,
+          experience: formData.experience,
+          bio: formData.bio,
+        }),
+      });
+
+      if (response.ok) {
+        setIsSubmitting(false);
+        setSubmitted(true);
+      } else {
+        const data = (await response.json()) as { error?: string };
+        throw new Error(data.error || "Submission failed");
+      }
+    } catch (err: unknown) {
+      setIsSubmitting(false);
+      const message = err instanceof Error ? err.message : "Something went wrong";
+      setSubmitError(message);
+    }
   };
 
   const handleClose = () => {
@@ -194,12 +226,30 @@ export default function CollaboratorModal({ isOpen, onClose }: CollaboratorModal
                 </span>
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-2 bg-[#181818] text-white text-xs font-semibold px-6 py-3 rounded-full hover:bg-[#282828] transition-colors cursor-pointer"
+                  disabled={isSubmitting}
+                  className="inline-flex items-center gap-2 bg-[#181818] text-white text-xs font-semibold px-6 py-3 rounded-full hover:bg-[#282828] transition-colors cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
                 >
-                  <span>Submit Application</span>
-                  <ArrowUpRight className="w-3.5 h-3.5 text-[#C8A46B]" />
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-[#C8A46B]" />
+                      <span>Submitting...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Submit Application</span>
+                      <ArrowUpRight className="w-3.5 h-3.5 text-[#C8A46B]" />
+                    </>
+                  )}
                 </button>
               </div>
+              {submitError && (
+                <p className="mt-3 text-xs text-red-600 text-center">
+                  {submitError} — email us at{" "}
+                  <a href="mailto:hello@ragecreative.co.za" className="font-mono underline">
+                    hello@ragecreative.co.za
+                  </a>
+                </p>
+              )}
             </form>
           )}
         </div>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { X, CheckCircle2, Calendar, Clock, ArrowRight, ArrowLeft, Sparkles, Phone } from "lucide-react";
+import { X, CheckCircle2, ArrowRight, ArrowLeft, Sparkles, Loader2 } from "lucide-react";
 import { RAGE_BRAND, SERVICES } from "@/lib/rageData";
 import RageLogo from "@/components/RageLogo";
 
@@ -29,6 +29,8 @@ export default function ProjectBookingModal({
     notes: "",
   });
   const [isConfirmed, setIsConfirmed] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   if (!isOpen) return null;
 
@@ -42,9 +44,41 @@ export default function ProjectBookingModal({
     else if (step === 2) setStep(1);
   };
 
-  const handleFinish = (e: React.FormEvent) => {
+  const handleFinish = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsConfirmed(true);
+    setIsSubmitting(true);
+    setSubmitError("");
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          formType: "booking",
+          name: formData.name,
+          company: formData.company,
+          email: formData.email,
+          phone: formData.phone,
+          service: selectedService,
+          budget,
+          timeline,
+          preferredDate: formData.preferredDate,
+          notes: formData.notes,
+        }),
+      });
+
+      if (response.ok) {
+        setIsSubmitting(false);
+        setIsConfirmed(true);
+      } else {
+        const data = (await response.json()) as { error?: string };
+        throw new Error(data.error || "Submission failed");
+      }
+    } catch (err: unknown) {
+      setIsSubmitting(false);
+      const message = err instanceof Error ? err.message : "Something went wrong";
+      setSubmitError(message);
+    }
   };
 
   const handleResetAndClose = () => {
@@ -378,12 +412,30 @@ export default function ProjectBookingModal({
                     </button>
                     <button
                       type="submit"
-                      className="inline-flex items-center gap-2 bg-[#181818] text-white text-xs font-semibold px-7 py-3 rounded-full hover:bg-[#282828] transition-colors cursor-pointer"
+                      disabled={isSubmitting}
+                      className="inline-flex items-center gap-2 bg-[#181818] text-white text-xs font-semibold px-7 py-3 rounded-full hover:bg-[#282828] transition-colors cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
                     >
-                      <span>Confirm Project Brief</span>
-                      <CheckCircle2 className="w-4 h-4 text-[#C8A46B]" />
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin text-[#C8A46B]" />
+                          <span>Sending...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Confirm Project Brief</span>
+                          <CheckCircle2 className="w-4 h-4 text-[#C8A46B]" />
+                        </>
+                      )}
                     </button>
                   </div>
+                  {submitError && (
+                    <p className="mt-3 text-xs text-red-600 text-center">
+                      {submitError} — email us at{" "}
+                      <a href="mailto:hello@ragecreative.co.za" className="font-mono underline">
+                        hello@ragecreative.co.za
+                      </a>
+                    </p>
+                  )}
                 </form>
               )}
             </div>

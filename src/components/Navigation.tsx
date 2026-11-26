@@ -2,6 +2,10 @@ import React, { useState, useEffect } from "react";
 import { ArrowUpRight, Menu, X, Instagram, Facebook } from "lucide-react";
 import { RAGE_BRAND } from "@/lib/rageData";
 
+// ─── FEATURE FLAGS (keep in sync with App.tsx) ───────────────────────────────
+const SHOW_PORTFOLIO = false;
+// ─────────────────────────────────────────────────────────────────────────────
+
 interface NavigationProps {
   activeSection?: string;
   onNavigate?: (sectionId: string) => void;
@@ -29,12 +33,12 @@ export default function Navigation({
   }, []);
 
   // Strictly ordered according to client specification:
-  // 1. Home, 2. About, 3. Services, 4. Portfolio, 5. Accelerate Your Brand, 6. Collaborate, 7. Contact
+  // 1. Home, 2. About, 3. Services, 4. Portfolio (hidden until SHOW_PORTFOLIO=true), 5. Accelerate Your Brand, 6. Collaborate, 7. Contact
   const navLinks = [
     { id: "hero", label: "Home" },
     { id: "about", label: "About" },
     { id: "services", label: "Services" },
-    { id: "portfolio", label: "Portfolio" },
+    ...(SHOW_PORTFOLIO ? [{ id: "portfolio", label: "Portfolio" }] : []),
     { id: "brand-accelerator", label: "Accelerate Your Brand", badge: "R4,000" },
     { id: "collaborate", label: "Collaborate" },
     { id: "contact", label: "Contact" },

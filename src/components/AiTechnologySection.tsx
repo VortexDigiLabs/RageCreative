@@ -26,9 +26,11 @@ export default function AiTechnologySection() {
   ];
 
   const handleScrollToPortfolio = () => {
-    const portfolioEl = document.getElementById("portfolio");
-    if (portfolioEl) {
-      portfolioEl.scrollIntoView({ behavior: "smooth" });
+    const targetEl =
+      document.getElementById("portfolio") ||
+      document.getElementById("brand-accelerator");
+    if (targetEl) {
+      targetEl.scrollIntoView({ behavior: "smooth" });
     }
   };
 

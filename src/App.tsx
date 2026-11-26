@@ -22,6 +22,11 @@ import CollaboratorModal from "@/components/modals/CollaboratorModal";
 import ProjectCaseStudyModal from "@/components/modals/ProjectCaseStudyModal";
 import { ServiceItem, ProjectItem } from "@/lib/rageData";
 
+// ─── FEATURE FLAGS ────────────────────────────────────────────────────────────
+// Set to true once real case studies are ready to publish.
+const SHOW_PORTFOLIO = false;
+// ─────────────────────────────────────────────────────────────────────────────
+
 export default function App() {
   const [activeSection, setActiveSection] = useState<string>("hero");
 
@@ -60,7 +65,7 @@ export default function App() {
       "hero",
       "about",
       "services",
-      "portfolio",
+      ...(SHOW_PORTFOLIO ? ["portfolio"] : []),
       "brand-accelerator",
       "collaborate",
       "contact",
@@ -120,7 +125,7 @@ export default function App() {
         <Hero
           onStartProject={() => openBooking()}
           onBookCall={() => openBooking("Discovery Call")}
-          onViewWork={() => handleNavigate("portfolio")}
+          onViewWork={() => handleNavigate(SHOW_PORTFOLIO ? "portfolio" : "services")}
           onBecomeCollaborator={openCollaborator}
         />
 
@@ -137,7 +142,7 @@ export default function App() {
         <AiTechnologySection />
 
         {/* 4. Portfolio Section with Sleek Category Filter Submenu */}
-        <PortfolioSection onSelectProject={openCaseStudy} />
+        {SHOW_PORTFOLIO && <PortfolioSection onSelectProject={openCaseStudy} />}
 
         {/* 5. Accelerate Your Brand (Brand Accelerator Package R4,000) */}
         <BrandAcceleratorSection

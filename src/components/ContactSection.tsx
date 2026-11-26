@@ -36,13 +36,15 @@ export default function ContactSection({
 
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const [mailtoUrl, setMailtoUrl] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitError("");
 
-    // Build structured email body
+    // Pre-build mailto fallback URL (always available as backup)
     const subject = encodeURIComponent(`[Rage Creative Brief] ${formData.projectType} — ${formData.name}`);
     const body = encodeURIComponent(
       `NEW PROJECT BRIEF — RAGE CREATIVE\n` +
@@ -58,20 +60,41 @@ export default function ContactSection({
       `----------------------------------------\n` +
       `Transmitted to: hello@ragecreative.co.za`
     );
+    setMailtoUrl(`mailto:hello@ragecreative.co.za?subject=${subject}&body=${body}`);
 
-    const generatedMailto = `mailto:hello@ragecreative.co.za?subject=${subject}&body=${body}`;
-    setMailtoUrl(generatedMailto);
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          formType: "contact",
+          name: formData.name,
+          company: formData.company,
+          email: formData.email,
+          phone: formData.phone,
+          service: formData.projectType,
+          budget: formData.budget,
+          message: formData.message,
+        }),
+      });
 
-    // Simulate resilient transmission with guaranteed fallback
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmitted(true);
-      if (onSuccessNotification) {
-        onSuccessNotification(
-          "Project brief received! Gareth Ellis & the Rage Creative team will respond within 24 hours."
-        );
+      if (response.ok) {
+        setIsSubmitting(false);
+        setSubmitted(true);
+        if (onSuccessNotification) {
+          onSuccessNotification(
+            "Project brief received! Gareth Ellis & the Rage Creative team will respond within 24 hours."
+          );
+        }
+      } else {
+        const data = (await response.json()) as { error?: string };
+        throw new Error(data.error || "Submission failed");
       }
-    }, 850);
+    } catch (err: unknown) {
+      setIsSubmitting(false);
+      const message = err instanceof Error ? err.message : "Something went wrong";
+      setSubmitError(message);
+    }
   };
 
   return (
@@ -395,7 +418,7 @@ export default function ContactSection({
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full inline-flex items-center justify-center gap-2.5 bg-[#181818] hover:bg-[#282828] text-white text-sm font-semibold py-4 rounded-full transition-all shadow-md hover:shadow-lg cursor-pointer disabled:opacity-75"
+                    className="w-full inline-flex items-center justify-center gap-2.5 bg-[#181818] hover:bg-[#282828] text-white text-sm font-semibold py-4 rounded-full transition-all shadow-md hover:shadow-lg cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
                   >
                     {isSubmitting ? (
                       <>
@@ -409,6 +432,15 @@ export default function ContactSection({
                       </>
                     )}
                   </button>
+
+                  {submitError && (
+                    <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 text-center">
+                      {submitError} — or email us directly at{" "}
+                      <a href="mailto:hello@ragecreative.co.za" className="font-mono font-semibold underline">
+                        hello@ragecreative.co.za
+                      </a>
+                    </div>
+                  )}
 
                   <div className="text-center">
                     <span className="text-[11px] text-[#8C877E]">
