@@ -30,27 +30,40 @@ export default function CollaboratorModal({ isOpen, onClose }: CollaboratorModal
     setSubmitError("");
 
     try {
-      const response = await fetch("/api/contact", {
+      const messageBody = [
+        `NEW COLLABORATOR APPLICATION — RAGE CREATIVE`,
+        ``,
+        `Full Name: ${formData.name}`,
+        `Email: ${formData.email}`,
+        `Phone / WhatsApp: ${formData.phone}`,
+        `Primary Discipline: ${formData.discipline}`,
+        `Years of Experience: ${formData.experience}`,
+        `Portfolio / Showreel URL: ${formData.portfolioUrl}`,
+        ``,
+        `Bio & Notable Work:`,
+        formData.bio || "—",
+        ``,
+        `— Submitted via RageCreative.co.za Collaborator Form`,
+      ].join("\n");
+
+      const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
-          formType: "collaborator",
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          discipline: formData.discipline,
-          portfolioUrl: formData.portfolioUrl,
-          experience: formData.experience,
-          bio: formData.bio,
+          access_key: "49bb7a3a-1646-4545-9eeb-73de5ea706cd",
+          subject: `[Rage Creative] New Collaborator Application — ${formData.name} (${formData.discipline})`,
+          from_name: `${formData.name} via Rage Creative Website`,
+          replyto: formData.email,
+          message: messageBody,
         }),
       });
 
-      if (response.ok) {
+      const result = await response.json() as { success: boolean; message?: string };
+      if (result.success) {
         setIsSubmitting(false);
         setSubmitted(true);
       } else {
-        const data = (await response.json()) as { error?: string };
-        throw new Error(data.error || "Submission failed");
+        throw new Error(result.message || "Submission failed");
       }
     } catch (err: unknown) {
       setIsSubmitting(false);

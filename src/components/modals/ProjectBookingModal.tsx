@@ -50,29 +50,42 @@ export default function ProjectBookingModal({
     setSubmitError("");
 
     try {
-      const response = await fetch("/api/contact", {
+      const messageBody = [
+        `NEW PROJECT BRIEF & DISCOVERY REQUEST — RAGE CREATIVE`,
+        ``,
+        `Client Name: ${formData.name}`,
+        `Company / Brand: ${formData.company}`,
+        `Email: ${formData.email}`,
+        `Phone / WhatsApp: ${formData.phone}`,
+        `Selected Service / Package: ${selectedService}`,
+        `Anticipated Budget: ${budget}`,
+        `Target Launch Window: ${timeline}`,
+        `Preferred Discovery Call Date/Time: ${formData.preferredDate || "Not specified"}`,
+        ``,
+        `Project Notes & Aspirations:`,
+        formData.notes || "—",
+        ``,
+        `— Submitted via RageCreative.co.za Project Booking Modal`,
+      ].join("\n");
+
+      const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
-          formType: "booking",
-          name: formData.name,
-          company: formData.company,
-          email: formData.email,
-          phone: formData.phone,
-          service: selectedService,
-          budget,
-          timeline,
-          preferredDate: formData.preferredDate,
-          notes: formData.notes,
+          access_key: "49bb7a3a-1646-4545-9eeb-73de5ea706cd",
+          subject: `[Rage Creative] Project Brief — ${selectedService} — ${formData.name} (${formData.company || "No Company"})`,
+          from_name: `${formData.name} via Rage Creative Website`,
+          replyto: formData.email,
+          message: messageBody,
         }),
       });
 
-      if (response.ok) {
+      const result = await response.json() as { success: boolean; message?: string };
+      if (result.success) {
         setIsSubmitting(false);
         setIsConfirmed(true);
       } else {
-        const data = (await response.json()) as { error?: string };
-        throw new Error(data.error || "Submission failed");
+        throw new Error(result.message || "Submission failed");
       }
     } catch (err: unknown) {
       setIsSubmitting(false);

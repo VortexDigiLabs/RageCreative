@@ -63,22 +63,36 @@ export default function ContactSection({
     setMailtoUrl(`mailto:hello@ragecreative.co.za?subject=${subject}&body=${body}`);
 
     try {
-      const response = await fetch("/api/contact", {
+      const messageBody = [
+        `NEW PROJECT BRIEF — RAGE CREATIVE`,
+        ``,
+        `Client Name: ${formData.name}`,
+        `Company / Brand: ${formData.company}`,
+        `Email: ${formData.email}`,
+        `Phone / WhatsApp: ${formData.phone}`,
+        `Primary Project Scope: ${formData.projectType}`,
+        `Anticipated Budget: ${formData.budget}`,
+        ``,
+        `Brief Summary / Objectives:`,
+        formData.message,
+        ``,
+        `— Submitted via RageCreative.co.za Contact Form`,
+      ].join("\n");
+
+      const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
-          formType: "contact",
-          name: formData.name,
-          company: formData.company,
-          email: formData.email,
-          phone: formData.phone,
-          service: formData.projectType,
-          budget: formData.budget,
-          message: formData.message,
+          access_key: "49bb7a3a-1646-4545-9eeb-73de5ea706cd",
+          subject: `[Rage Creative Brief] ${formData.projectType} — ${formData.name} (${formData.company})`,
+          from_name: `${formData.name} via Rage Creative Website`,
+          replyto: formData.email,
+          message: messageBody,
         }),
       });
 
-      if (response.ok) {
+      const result = await response.json() as { success: boolean; message?: string };
+      if (result.success) {
         setIsSubmitting(false);
         setSubmitted(true);
         if (onSuccessNotification) {
@@ -87,8 +101,7 @@ export default function ContactSection({
           );
         }
       } else {
-        const data = (await response.json()) as { error?: string };
-        throw new Error(data.error || "Submission failed");
+        throw new Error(result.message || "Submission failed");
       }
     } catch (err: unknown) {
       setIsSubmitting(false);
