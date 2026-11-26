@@ -1,36 +1,19 @@
 // Vercel Serverless Function: /api/contact
 // Sends enquiry emails to hello@ragecreative.co.za via Web3Forms
-// Environment variable required: WEB3FORMS_ACCESS_KEY (set in Vercel Project Settings)
+// Env var required: WEB3FORMS_ACCESS_KEY (Vercel Project Settings → Environment Variables)
 
-import type { VercelRequest, VercelResponse } from "@vercel/node";
-
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Only accept POST
+export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
   const {
-    name,
-    email,
-    phone,
-    company,
-    service,
-    budget,
-    timeline,
-    message,
-    formType,
-    // collaborator fields
-    discipline,
-    portfolioUrl,
-    experience,
-    bio,
-    // booking modal extra fields
-    preferredDate,
-    notes,
-  } = req.body as Record<string, string>;
+    name, email, phone, company,
+    service, budget, timeline, message, formType,
+    discipline, portfolioUrl, experience, bio,
+    preferredDate, notes,
+  } = req.body || {};
 
-  // Basic validation
   if (!name || !email || !phone) {
     return res.status(400).json({ error: "Name, email and phone are required." });
   }
@@ -44,7 +27,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: "Server configuration error." });
   }
 
-  // Build a clean email body depending on form type
   let subjectLine = "";
   let htmlBody = "";
 
@@ -81,7 +63,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       <p style="font-family:sans-serif;font-size:12px;color:#736e67;margin-top:24px;">Submitted via RageCreative.co.za Project Booking Modal</p>
     `;
   } else {
-    // Default: contact section form
     subjectLine = `[Rage Creative Brief] ${service || "Enquiry"} — ${name} (${company || "No Company"})`;
     htmlBody = `
       <h2 style="font-family:sans-serif;color:#181818;">New Project Brief — Rage Creative</h2>
@@ -98,7 +79,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     `;
   }
 
-  // Submit to Web3Forms — delivers to hello@ragecreative.co.za via their relay
   const payload = {
     access_key: accessKey,
     subject: subjectLine,
@@ -114,7 +94,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       body: JSON.stringify(payload),
     });
 
-    const result = (await response.json()) as { success: boolean; message?: string };
+    const result = await response.json();
 
     if (result.success) {
       return res.status(200).json({ success: true });
